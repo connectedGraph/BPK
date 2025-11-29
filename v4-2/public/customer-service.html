@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客服管理中心 - 实时消息处理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* 登录界面 */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            padding: 40px;
+        }
+
+        .login-form {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 主界面 */
+        .main-container {
+            display: none;
+            height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .content {
+            display: flex;
+            height: calc(100vh - 80px);
+        }
+
+        /* 用户列表 */
+        .users-panel {
+            width: 300px;
+            border-right: 1px solid #e1e5e9;
+            background: #f8f9fa;
+            overflow-y: auto;
+        }
+
+        .users-header {
+            padding: 20px;
+            border-bottom: 1px solid #e1e5e9;
+            background: white;
+        }
+
+        .users-header h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .users-list {
+            padding: 10px;
+        }
+
+        .user-item {
+            padding: 15px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .user-item:hover {
+            background: #e3f2fd;
+            transform: translateX(5px);
+        }
+
+        .user-item.active {
+            background: #e3f2fd;
+            border-left-color: #667eea;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .user-last-message {
+            font-size: 12px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unread-badge {
+            background: #ff4757;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        /* 聊天区域 */
+        .chat-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #e1e5e9;
+            background: white;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            max-width: 70%;
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .message.received {
+            background: white;
+            border: 1px solid #e1e5e9;
+            align-self: flex-start;
+        }
+
+        .message.sent {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .message.sent .message-time {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #e1e5e9;
+            background: white;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #e1e5e9;
+            border-radius: 25px;
+            font-size: 14px;
+            resize: none;
+            height: 50px;
+        }
+
+        .send-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* 通知样式 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4cd964;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* 连接状态 */
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        .connected {
+            background: #4cd964;
+            color: white;
+        }
+
+        .disconnected {
+            background: #ff4757;
+            color: white;
+        }
+
+        /* 加载动画 */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录界面 -->
+    <div class="container">
+        <div class="login-container" id="loginContainer">
+            <div class="login-form">
+                <h2>客服系统登录</h2>
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="username" placeholder="请输入客服账号">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="password" placeholder="请输入密码">
+                </div>
+                <button class="login-btn" onclick="login()">登录客服系统</button>
+            </div>
+        </div>
+
+        <!-- 主界面 -->
+        <div class="main-container" id="mainContainer">
+            <div class="header">
+                <h1>客服管理中心 - 实时消息处理</h1>
+                <div class="user-info">
+                    <div class="stats">
+                        <div class="stat-item">在线用户: <span id="onlineCount">0</span></div>
+                        <div class="stat-item">未读消息: <span id="unreadCount">0</span></div>
+                        <div class="stat-item">好友数: <span id="friendCount">0</span></div>
+                    </div>
+                    <button class="logout-btn" onclick="logout()" style="background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">退出登录</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- 用户列表 -->
+                <div class="users-panel">
+                    <div class="users-header">
+                        <h3>用户列表</h3>
+                        <input type="text" class="search-box" id="userSearch" placeholder="搜索用户..." onkeyup="filterUsers()">
+                    </div>
+                    <div class="users-list" id="usersList">
+                        <div class="loading">加载用户中...</div>
+                    </div>
+                </div>
+
+                <!-- 聊天区域 -->
+                <div class="chat-panel">
+                    <div class="chat-header" id="chatHeader">
+                        <div style="color: #666;">请选择一个用户开始对话</div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="loading">选择用户查看对话</div>
+                    </div>
+                    <div class="chat-input">
+                        <div class="input-group">
+                            <textarea class="message-input" id="messageInput" placeholder="输入回复消息..." disabled></textarea>
+                            <button class="send-btn" onclick="sendMessage()" disabled>发送</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 连接状态指示器 -->
+    <div class="connection-status disconnected" id="connectionStatus">连接断开</div>
+
+    <script>
+        let currentUser = null;
+        let ws = null;
+        let currentChatUser = null;
+        let users = new Map(); // 存储所有用户信息
+        let chatHistories = new Map(); // 存储聊天记录
+        let unreadCounts = new Map(); // 存储未读消息数
+
+        // 登录函数
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showNotification('请输入用户名和密码', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    currentUser = userData;
+                    
+                    // 切换到主界面
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('mainContainer').style.display = 'block';
+                    
+                    // 初始化WebSocket连接
+                    initWebSocket();
+                    // 加载用户列表
+                    loadUsers();
+                    // 更新统计信息
+                    updateStats();
+                    
+                    showNotification('登录成功！', 'success');
+                } else {
+                    const error = await response.json();
+                    showNotification(error.error || '登录失败', 'error');
+                }
+            } catch (error) {
+                showNotification('网络错误，请检查连接', 'error');
+            }
+        }
+
+        // 初始化WebSocket连接
+        function initWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}`;
+            
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                console.log('WebSocket连接已建立');
+                updateConnectionStatus(true);
+                
+                // 发送认证消息
+                ws.send(JSON.stringify({
+                    type: 'auth',
+                    userId: currentUser.id
+                }));
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleWebSocketMessage(data);
+                } catch (error) {
+                    console.error('解析WebSocket消息失败:', error);
+                }
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket连接已关闭');
+                updateConnectionStatus(false);
+                // 5秒后重连
+                setTimeout(initWebSocket, 5000);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket错误:', error);
+                updateConnectionStatus(false);
+            };
+        }
+
+        // 处理WebSocket消息
+        function handleWebSocketMessage(data) {
+            switch (data.type) {
+                case 'chat_message':
+                    handleIncomingMessage(data.message);
+                    break;
+                case 'friend_request_received':
+                    showNotification(`新的好友申请: ${data.request.fromUsername}`, 'info');
+                    break;
+                case 'friend_request_accepted':
+                    showNotification(`${data.username} 接受了你的好友申请`, 'success');
+                    loadUsers(); // 重新加载用户列表
+                    break;
+                case 'world_chat_message':
+                    // 可以处理世界聊天消息
+                    break;
+            }
+        }
+
+        // 处理收到的消息
+        function handleIncomingMessage(message) {
+            const fromUserId = message.from;
+            
+            // 添加到聊天记录
+            if (!chatHistories.has(fromUserId)) {
+                chatHistories.set(fromUserId, []);
+            }
+            chatHistories.get(fromUserId).push({
+                ...message,
+                type: 'received'
+            });
+
+            // 更新未读计数
+            const currentUnread = unreadCounts.get(fromUserId) || 0;
+            unreadCounts.set(fromUserId, currentUnread + 1);
+
+            // 如果当前正在和该用户聊天，显示消息并标记为已读
+            if (currentChatUser === fromUserId) {
+                displayMessages(fromUserId);
+                markAsRead(fromUserId);
+            } else {
+                // 显示通知
+                const fromUser = users.get(fromUserId);
+                if (fromUser) {
+                    showNotification(`新消息来自 ${fromUser.username}: ${message.content}`, 'info');
+                }
+                
+                // 更新用户列表中的未读标识
+                updateUserListItem(fromUserId);
+            }
+
+            // 更新统计信息
+            updateStats();
+        }
+
+        // 加载用户列表
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/friends');
+                if (response.ok) {
+                    const friends = await response.json();
+                    users.clear();
+                    
+                    friends.forEach(friend => {
+                        users.set(friend.id, friend);
+                    });
+                    
+                    displayUsersList();
+                    updateStats();
+                }
+            } catch (error) {
+                console.error('加载用户列表失败:', error);
+            }
+        }
+
+        // 显示用户列表
+        function displayUsersList() {
+            const usersList = document.getElementById('usersList');
+            const userArray = Array.from(users.values());
+            
+            if (userArray.length === 0) {
+                usersList.innerHTML = '<div class="loading">暂无好友</div>';
+                return;
+            }
+
+            usersList.innerHTML = userArray.map(user => {
+                const unread = unreadCounts.get(user.id) || 0;
+                const lastMessage = getLastMessage(user.id);
+                
+                return `
+                    <div class="user-item ${currentChatUser === user.id ? 'active' : ''}" 
+                         onclick="selectUser('${user.id}')">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div class="user-name">${user.username}</div>
+                            ${unread > 0 ? `<div class="unread-badge">${unread}</div>` : ''}
+                        </div>
+                        <div class="user-last-message">${lastMessage || '暂无消息'}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 获取最后一条消息
+        function getLastMessage(userId) {
+            const history = chatHistories.get(userId);
+            return history && history.length > 0 ? 
+                history[history.length - 1].content : '';
+        }
+
+        // 选择用户开始对话
+        async function selectUser(userId) {
+            currentChatUser = userId;
+            
+            // 更新UI
+            document.querySelectorAll('.user-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // 更新聊天头部
+            const user = users.get(userId);
+            document.getElementById('chatHeader').innerHTML = `
+                <div>
+                    <strong>${user.username}</strong>
+                    <div style="font-size: 12px; color: #666;">积分: ${user.score} | ${user.online ? '🟢 在线' : '⚫ 离线'}</div>
+                </div>
+            `;
+            
+            // 启用输入框
+            document.getElementById('messageInput').disabled = false;
+            document.querySelector('.send-btn').disabled = false;
+            
+            // 加载聊天记录
+            await loadChatHistory(userId);
+            // 标记为已读
+            markAsRead(userId);
+        }
+
+        // 加载聊天记录
+        async function loadChatHistory(userId) {
+            try {
+                const response = await fetch(`/api/chat/${userId}`);
+                if (response.ok) {
+                    const messages = await response.json();
+                    chatHistories.set(userId, messages);
+                    displayMessages(userId);
+                }
+            } catch (error) {
+                console.error('加载聊天记录失败:', error);
+            }
+        }
+
+        // 显示消息
+        function displayMessages(userId) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messages = chatHistories.get(userId) || [];
+            
+            chatMessages.innerHTML = messages.map(msg => `
+                <div class="message ${msg.from === currentUser.id ? 'sent' : 'received'}">
+                    <div>${msg.content}</div>
+                    <div class="message-time">${new Date(msg.timestamp).toLocaleString()}</div>
+                </div>
+            `).join('');
+            
+            // 滚动到底部
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+            
+            if (!content || !currentChatUser) return;
+
+            const message = {
+                type: 'chat_message',
+                toUserId: currentChatUser,
+                content: content
+            };
+
+            // 通过WebSocket发送
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(message));
+                
+                // 本地立即显示
+                if (!chatHistories.has(currentChatUser)) {
+                    chatHistories.set(currentChatUser, []);
+                }
+                chatHistories.get(currentChatUser).push({
+                    id: `temp-${Date.now()}`,
+                    from: currentUser.id,
+                    to: currentChatUser,
+                    content: content,
+                    timestamp: new Date().toISOString(),
+                    type: 'sent'
+                });
+                
+                displayMessages(currentChatUser);
+                input.value = '';
+            }
+        }
+
+        // 标记为已读
+        function markAsRead(userId) {
+            unreadCounts.set(userId, 0);
+            updateUserListItem(userId);
+            updateStats();
+        }
+
+        // 更新用户列表项
+        function updateUserListItem(userId) {
+            const userItem = document.querySelector(`.user-item[onclick="selectUser('${userId}')"]`);
+            if (userItem) {
+                const unread = unreadCounts.get(userId) || 0;
+                const badge = userItem.querySelector('.unread-badge');
+                
+                if (unread > 0) {
+                    if (!badge) {
+                        userItem.querySelector('.user-name').parentNode.innerHTML += 
+                            `<div class="unread-badge">${unread}</div>`;
+                    } else {
+                        badge.textContent = unread;
+                    }
+                } else if (badge) {
+                    badge.remove();
+                }
+            }
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            const totalUnread = Array.from(unreadCounts.values()).reduce((sum, count) => sum + count, 0);
+            document.getElementById('unreadCount').textContent = totalUnread;
+            document.getElementById('friendCount').textContent = users.size;
+            
+            // 在线用户数（简单统计）
+            const onlineUsers = Array.from(users.values()).filter(user => user.online).length;
+            document.getElementById('onlineCount').textContent = onlineUsers;
+        }
+
+        // 更新连接状态
+        function updateConnectionStatus(connected) {
+            const statusElement = document.getElementById('connectionStatus');
+            statusElement.textContent = connected ? '连接正常' : '连接断开';
+            statusElement.className = `connection-status ${connected ? 'connected' : 'disconnected'}`;
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.background = type === 'error' ? '#ff4757' : 
+                                          type === 'success' ? '#4cd964' : '#667eea';
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // 退出登录
+        function logout() {
+            currentUser = null;
+            if (ws) {
+                ws.close();
+            }
+            document.getElementById('mainContainer').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'flex';
+            
+            // 清空输入
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // 搜索过滤用户
+        function filterUsers() {
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            const userItems = document.querySelectorAll('.user-item');
+            
+            userItems.forEach(item => {
+                const userName = item.querySelector('.user-name').textContent.toLowerCase();
+                if (userName.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // 回车发送消息
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // 初始化
+        document.getElementById('username').focus();
+    </script>
+</body>
+</html>

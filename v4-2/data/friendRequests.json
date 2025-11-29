@@ -1,0 +1,70 @@
+[
+  {
+    "toUserId": "user-3d054521-dba8-490a-9ee4-a7cd0685c43b",
+    "requests": [
+      {
+        "id": "friend-request-799e30e0-565d-4fe4-88b4-d10b900c3d55",
+        "fromUserId": "user-a9caace9-0275-42a4-92b0-3e6b2e323969",
+        "toUserId": "user-3d054521-dba8-490a-9ee4-a7cd0685c43b",
+        "message": "",
+        "status": "accepted",
+        "createdAt": "2025-11-09T09:08:03.251Z"
+      }
+    ]
+  },
+  {
+    "toUserId": "user-f9d70a1e-1357-45e6-ac3a-bb3eff847bc1",
+    "requests": [
+      {
+        "id": "friend-request-563ade0b-aadd-4eca-820a-978ce25a6175",
+        "fromUserId": "user-a9caace9-0275-42a4-92b0-3e6b2e323969",
+        "toUserId": "user-f9d70a1e-1357-45e6-ac3a-bb3eff847bc1",
+        "message": "你好！我是123456，刚刚和你进行了一场精彩的对战，想加你为好友继续切磋！",
+        "status": "accepted",
+        "createdAt": "2025-11-09T11:50:47.298Z"
+      }
+    ]
+  },
+  {
+    "toUserId": "user-09029d5c-b7c6-4ba3-ad1e-3b480de8a92c",
+    "requests": [
+      {
+        "id": "friend-request-bda045ed-3bca-4db0-a1c0-901e0821cc50",
+        "fromUserId": "user-f9d70a1e-1357-45e6-ac3a-bb3eff847bc1",
+        "toUserId": "user-09029d5c-b7c6-4ba3-ad1e-3b480de8a92c",
+        "message": "你好！我是xkx，刚刚和你进行了一场精彩的对战，想加你为好友继续切磋！",
+        "status": "accepted",
+        "createdAt": "2025-11-09T13:01:16.711Z"
+      },
+      {
+        "id": "friend-request-d8bbcfd7-e98d-4e7f-a47f-a00eb7618bef",
+        "fromUserId": "user-a9caace9-0275-42a4-92b0-3e6b2e323969",
+        "toUserId": "user-09029d5c-b7c6-4ba3-ad1e-3b480de8a92c",
+        "message": "",
+        "status": "pending",
+        "createdAt": "2025-11-22T12:36:40.285Z"
+      }
+    ]
+  },
+  {
+    "toUserId": "user-4e47fa8b-f04e-437a-b999-6771929405c8",
+    "requests": [
+      {
+        "id": "friend-request-aa4fa5b1-8e1e-4ecb-8bb7-49f4f3988356",
+        "fromUserId": "user-a9caace9-0275-42a4-92b0-3e6b2e323969",
+        "toUserId": "user-4e47fa8b-f04e-437a-b999-6771929405c8",
+        "message": "",
+        "status": "rejected",
+        "createdAt": "2025-11-26T10:01:35.223Z"
+      },
+      {
+        "id": "friend-request-0a78d1ce-9723-416d-8f3d-bd2cd01af864",
+        "fromUserId": "user-a9caace9-0275-42a4-92b0-3e6b2e323969",
+        "toUserId": "user-4e47fa8b-f04e-437a-b999-6771929405c8",
+        "message": "",
+        "status": "accepted",
+        "createdAt": "2025-11-26T10:55:34.881Z"
+      }
+    ]
+  }
+]
